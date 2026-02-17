@@ -79,48 +79,76 @@
         #targets {
             display: flex;
             justify-content: center;
-            gap: 15px;
-            margin: 20px 0;
+            gap: 25px;
+            margin: 30px 0;
             flex-wrap: wrap;
         }
         
         .target {
-            width: 80px;
-            height: 80px;
-            background: radial-gradient(circle at 30% 30%, #f0f0f0, #aaa);
+            width: 90px;
+            height: 90px;
+            background: #2a2a2a;
             border-radius: 50%;
-            border: 5px solid #333;
-            box-shadow: 0 8px 0 #444;
+            border: 6px solid #1a1a1a;
+            box-shadow: 0 8px 0 #0f0f0f, inset 0 0 0 8px #f0f0f0;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.5em;
+            font-size: 2.8em;
             font-weight: bold;
-            color: #c00;
-            text-shadow: 1px 1px 0 white;
+            color: #ffaa33;
+            text-shadow: 2px 2px 0 #000;
             cursor: pointer;
             position: relative;
+            transition: all 0.1s;
+        }
+        
+        .target::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2), transparent 70%);
+            pointer-events: none;
         }
         
         .target small {
             position: absolute;
-            bottom: -25px;
-            font-size: 0.5em;
+            bottom: -30px;
+            font-size: 0.6em;
             color: gold;
             background: #0a1a1f;
-            padding: 2px 8px;
-            border-radius: 10px;
-            border: 1px solid gold;
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 2px solid gold;
+            font-weight: bold;
+            letter-spacing: 1px;
         }
         
         .target:active {
             transform: translateY(4px);
-            box-shadow: 0 4px 0 #444;
+            box-shadow: 0 4px 0 #0f0f0f, inset 0 0 0 8px #f0f0f0;
         }
         
         .target.selected {
             border-color: gold;
-            box-shadow: 0 0 20px gold, 0 8px 0 #444;
+            box-shadow: 0 0 20px gold, 0 8px 0 #0f0f0f, inset 0 0 0 8px #f0f0f0;
+            transform: scale(1.05);
+        }
+        
+        .target.selected::after {
+            content: '💥';
+            position: absolute;
+            font-size: 2em;
+            color: orange;
+            text-shadow: 0 0 10px red;
+            animation: explosion 0.3s ease-out;
+        }
+        
+        @keyframes explosion {
+            0% { transform: scale(0); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
         }
         
         #wordBox {
@@ -177,6 +205,7 @@
             width: 0%;
             background: #ffaa33;
             transition: width 0.1s;
+            box-shadow: 0 0 10px #ffaa33;
         }
         
         #timer {
@@ -185,6 +214,8 @@
             text-align: center;
             font-weight: bold;
             margin: 5px 0;
+            font-family: monospace;
+            text-shadow: 0 0 10px rgba(255,215,0,0.5);
         }
         
         #controls {
@@ -194,14 +225,17 @@
             margin: 10px 0;
             color: #ffd966;
             font-size: 1.2em;
+            flex-wrap: wrap;
         }
         
         .key {
             background: #2d5a6b;
-            padding: 5px 15px;
-            border-radius: 10px;
+            padding: 8px 18px;
+            border-radius: 30px;
             border: 2px solid gold;
             color: white;
+            font-weight: bold;
+            box-shadow: 0 4px 0 #1a3a45;
         }
         
         #start {
@@ -216,6 +250,9 @@
             box-shadow: 0 8px 0 #1e5724;
             cursor: pointer;
             margin-top: 15px;
+            transition: all 0.1s;
+            text-transform: uppercase;
+            letter-spacing: 3px;
         }
         
         #start:active {
@@ -228,6 +265,20 @@
             transform: translateY(4px);
             box-shadow: 0 4px 0 #1e5724;
             pointer-events: none;
+        }
+        
+        @media (max-width: 600px) {
+            .target {
+                width: 70px;
+                height: 70px;
+                font-size: 2em;
+                border-width: 4px;
+                inset-shadow: 0 0 0 6px #f0f0f0;
+            }
+            
+            #word {
+                font-size: 3em;
+            }
         }
     </style>
 </head>
@@ -401,10 +452,11 @@
         document.addEventListener('keydown', (e) => {
             const key = e.key.toLowerCase();
             
-            // START na mezerník
+            // START na mezerník - vždy funguje, když je hra neaktivní a tlačítko není disabled
             if (key === ' ') {
                 e.preventDefault();
-                if (!gameActive && startBtn.disabled === false) {
+                // Kontrola, zda je tlačítko START dostupné (není disabled)
+                if (!gameActive && !startBtn.disabled) {
                     startGame();
                 }
                 return;
@@ -509,7 +561,7 @@
             });
             
             if (isCorrect) {
-                messageEl.textContent = 'TREFA!';
+                messageEl.textContent = '🎯 TREFA!';
                 if (currentPlayer === 1) {
                     p1score++;
                     p1scoreEl.textContent = p1score;
@@ -521,7 +573,7 @@
                 currentIndex++;
                 showWord();
             } else {
-                messageEl.textContent = 'VEDLE!';
+                messageEl.textContent = '❌ VEDLE!';
                 currentIndex++;
                 canShoot = false;
                 startRace();
